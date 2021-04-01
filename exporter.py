@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+"""Selenium Grid (v4) Metrics Exporter"""
 import argparse
 import json
 import logging
@@ -81,9 +82,12 @@ if __name__ == '__main__':
                         help='how frequent (in seconds) metrics are generated')
     parser.add_argument('-w', '--wait', type=int, default=15,
                         help='how long to wait for grid to initialize before polling starts')
+    parser.add_argument('-l', '--log-level', type=str, default='info',
+                        choices=['debug', 'info', 'warning', 'error', 'critical'], help='set the logging level')
     args = parser.parse_args()
 
-    logging.basicConfig(format='%(asctime)s --- %(levelname)s --- %(message)s', level=logging.DEBUG)
+    logging.basicConfig(format='%(asctime)s --- %(levelname)s --- %(message)s',
+                        level=getattr(logging, args.log_level.upper()))
     try:
         logging.info(f'Starting Selenium Grid Exporter')
         # start up the server to expose the metrics

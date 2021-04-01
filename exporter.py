@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import argparse
 import json
+import logging
+import sys
 import time
 
 import requests
@@ -73,15 +75,29 @@ def generate_node_metrics(data: dict) -> None:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Process some integers.')
-    parser.add_argument('--grid-url', type=str, default='http://localhost:4444', help='the grid URL with port')
-    parser.add_argument('--metrics-port', type=int, default=8000, help='port where the metrics will be publushed')
-    parser.add_argument('--publish-interval', type=int, default=30,
+    parser.add_argument('-g', '--grid-url', type=str, default='http://localhost:4444', help='the grid URL with port')
+    parser.add_argument('-p', '--metrics-port', type=int, default=8000, help='port where the metrics will be published')
+    parser.add_argument('-i', '--publish-interval', type=int, default=30,
                         help='how frequent (in seconds) metrics are generated')
-
+    parser.add_argument('-w', '--wait', type=int, default=15,
+                        help='how long to wait for grid to initialize before polling starts')
     args = parser.parse_args()
-    # start up the server to expose the metrics
-    start_http_server(args.metrics_port)
-    # generate metrics every 30 seconds
-    while True:
-        process_metrics()
-        time.sleep(args.publish_interval)
+
+    logging.basicConfig(format='%(asctime)s --- %(levelname)s --- %(message)s', level=logging.DEBUG)
+    try:
+        logging.info(f'Starting Selenium Grid Exporter')
+        # start up the server to expose the metrics
+        start_http_server(args.metrics_port)
+        logging.info(f'Waiting {args.wait} seconds for grid to initialize...')
+        time.sleep(args.wait)
+        # generate metrics every --publish-interval seconds
+        logging.info(f'Metrics will be polled for grid url {args.grid_url} every {args.publish_interval} seconds '
+                     f'and available for scraping on port {args.metrics_port}')
+        while True:
+            process_metrics()
+            time.sleep(args.publish_interval)
+    except KeyboardInterrupt:
+        logging.info('Exiting now')
+        sys.exit()
+    except Exception:
+        logging.error('Unhandled exception', exc_info=True)

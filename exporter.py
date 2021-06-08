@@ -24,6 +24,8 @@ for entry in BROWSERS:
                                                           f'Total number of {entry.capitalize()} slots')
     globals()[f'NODE_SESSION_COUNT_{entry.upper()}'] = Gauge(f'selenium_node_session_count_{entry}',
                                                              f'Total number of {entry.capitalize()} slots')
+    globals()[f'NODE_USAGE_PERCENT_{entry.upper()}'] = Gauge(f'selenium_node_usage_percent_{entry}',
+                                                             f'% of used {entry.capitalize()} slots')
 
 
 def process_metrics() -> None:
@@ -79,6 +81,8 @@ def generate_node_metrics(data: dict) -> None:
         logging.debug(f'Publishing {browser.capitalize()} metrics')
         globals()[f'NODE_SLOT_COUNT_{browser.upper()}'].set(all_nodes[browser]['slot_count'])
         globals()[f'NODE_SESSION_COUNT_{browser.upper()}'].set(all_nodes[browser]['session_count'])
+        globals()[f'NODE_USAGE_PERCENT_{browser.upper()}'].set(
+            all_nodes[browser]['session_count'] / all_nodes[browser]['slot_count'])
 
 
 if __name__ == '__main__':

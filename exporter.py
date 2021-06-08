@@ -79,7 +79,7 @@ def generate_node_metrics(data: dict) -> None:
             NODE_SLOT_COUNT.labels(browser).set(all_nodes[browser]['slot_count'])
             NODE_SESSION_COUNT.labels(browser).set(all_nodes[browser]['session_count'])
             NODE_USAGE_PERCENT.labels(browser).set(
-                all_nodes[browser]['session_count'] / all_nodes[browser]['slot_count'])
+                (all_nodes[browser]['session_count'] / all_nodes[browser]['slot_count']) * 100)
 
 
 if __name__ == '__main__':

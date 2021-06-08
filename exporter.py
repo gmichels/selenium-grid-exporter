@@ -10,20 +10,20 @@ import requests
 from prometheus_client import Gauge, start_http_server
 
 # grid metrics
-GRID_TOTAL_SLOTS = Gauge('grid_total_slots', 'Total number of slots in the grid')
-GRID_NODE_COUNT = Gauge('grid_node_count', 'Number of nodes in grid')
-GRID_SESSION_COUNT = Gauge('grid_session_count', 'Number of running sessions')
-GRID_SESSION_QUEUE_SIZE = Gauge('grid_session_queue_size', 'Number of queued sessions')
+SELENIUM_GRID_TOTAL_SLOTS = Gauge('grid_total_slots', 'Total number of slots in the grid')
+SELENIUM_GRID_NODE_COUNT = Gauge('grid_node_count', 'Number of nodes in grid')
+SELENIUM_GRID_SESSION_COUNT = Gauge('grid_session_count', 'Number of running sessions')
+SELENIUM_GRID_SESSION_QUEUE_SIZE = Gauge('grid_session_queue_size', 'Number of queued sessions')
 
 # supported browsers
 BROWSERS = ['chrome', 'firefox', 'edge', 'opera']
 # node metrics
 for entry in BROWSERS:
     # dynamically create metric container for each browser
-    globals()[f'NODE_SLOT_COUNT_{entry.upper()}'] = Gauge(f'node_slot_count_{entry}',
-                                                          f'Total number of {entry.capitalize()} slots')
-    globals()[f'NODE_SESSION_COUNT_{entry.upper()}'] = Gauge(f'node_session_count_{entry}',
-                                                             f'Total number of {entry.capitalize()} slots')
+    globals()[f'SELENIUM_NODE_SLOT_COUNT_{entry.upper()}'] = Gauge(f'selenium_node_slot_count_{entry}',
+                                                                   f'Total number of {entry.capitalize()} slots')
+    globals()[f'SELENIUM_NODE_SESSION_COUNT_{entry.upper()}'] = Gauge(f'selenium_node_session_count_{entry}',
+                                                                      f'Total number of {entry.capitalize()} slots')
 
 
 def process_metrics() -> None:
@@ -50,10 +50,10 @@ def generate_grid_metrics(data: dict) -> None:
     :param data: the grid data dict
     """
     logging.debug('Publishing Grid metrics')
-    GRID_TOTAL_SLOTS.set(data['totalSlots'])
-    GRID_NODE_COUNT.set(data['nodeCount'])
-    GRID_SESSION_COUNT.set(data['sessionCount'])
-    GRID_SESSION_QUEUE_SIZE.set(data['sessionQueueSize'])
+    SELENIUM_GRID_TOTAL_SLOTS.set(data['totalSlots'])
+    SELENIUM_GRID_NODE_COUNT.set(data['nodeCount'])
+    SELENIUM_GRID_SESSION_COUNT.set(data['sessionCount'])
+    SELENIUM_GRID_SESSION_QUEUE_SIZE.set(data['sessionQueueSize'])
 
 
 def generate_node_metrics(data: dict) -> None:
@@ -77,8 +77,8 @@ def generate_node_metrics(data: dict) -> None:
     # publish browser metrics
     for browser in BROWSERS:
         logging.debug(f'Publishing {browser.capitalize()} metrics')
-        globals()[f'NODE_SLOT_COUNT_{browser.upper()}'].set(all_nodes[browser]['slot_count'])
-        globals()[f'NODE_SESSION_COUNT_{browser.upper()}'].set(all_nodes[browser]['session_count'])
+        globals()[f'SELENIUM_NODE_SLOT_COUNT_{browser.upper()}'].set(all_nodes[browser]['slot_count'])
+        globals()[f'SELENIUM_NODE_SESSION_COUNT_{browser.upper()}'].set(all_nodes[browser]['session_count'])
 
 
 if __name__ == '__main__':

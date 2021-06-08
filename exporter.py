@@ -76,13 +76,14 @@ def generate_node_metrics(data: dict) -> None:
         all_nodes[browser]['slot_count'] += node['slotCount']
         all_nodes[browser]['session_count'] += node['sessionCount']
 
-    # publish browser metrics
+    # publish available browser metrics
     for browser in BROWSERS:
-        logging.debug(f'Publishing {browser.capitalize()} metrics')
-        globals()[f'NODE_SLOT_COUNT_{browser.upper()}'].set(all_nodes[browser]['slot_count'])
-        globals()[f'NODE_SESSION_COUNT_{browser.upper()}'].set(all_nodes[browser]['session_count'])
-        globals()[f'NODE_USAGE_PERCENT_{browser.upper()}'].set(
-            all_nodes[browser]['session_count'] / all_nodes[browser]['slot_count'])
+        if all_nodes[browser]['slot_count'] > 0:
+            logging.debug(f'Publishing {browser.capitalize()} metrics')
+            globals()[f'NODE_SLOT_COUNT_{browser.upper()}'].set(all_nodes[browser]['slot_count'])
+            globals()[f'NODE_SESSION_COUNT_{browser.upper()}'].set(all_nodes[browser]['session_count'])
+            globals()[f'NODE_USAGE_PERCENT_{browser.upper()}'].set(
+                all_nodes[browser]['session_count'] / all_nodes[browser]['slot_count'])
 
 
 if __name__ == '__main__':

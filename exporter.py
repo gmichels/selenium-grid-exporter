@@ -16,9 +16,10 @@ GRID_SESSION_COUNT = Gauge('selenium_grid_session_count', 'Number of running ses
 GRID_SESSION_QUEUE_SIZE = Gauge('selenium_grid_session_queue_size', 'Number of queued sessions')
 
 # node metrics
-NODE_SLOT_COUNT = Gauge('selenium_node_slot_count', 'Total number of node slots', labelnames=['node'])
-NODE_SESSION_COUNT = Gauge('selenium_node_session_count', 'Total number of node slots', labelnames=['node'])
-NODE_USAGE_PERCENT = Gauge('selenium_node_usage_percent', '% of used node slots', labelnames=['node'])
+NODE_SLOT_COUNT = Gauge('selenium_node_slot_count', 'Total number of node slots', labelnames=['node', 'deployment'])
+NODE_SESSION_COUNT = Gauge('selenium_node_session_count', 'Total number of node slots',
+                           labelnames=['node', 'deployment'])
+NODE_USAGE_PERCENT = Gauge('selenium_node_usage_percent', '% of used node slots', labelnames=['node', 'deployment'])
 
 # supported browsers
 BROWSERS = ['chrome', 'firefox']
@@ -75,13 +76,13 @@ def generate_node_metrics(data: dict) -> None:
     # publish available browser metrics
     for browser in BROWSERS:
         logging.debug(f'Publishing {browser.capitalize()} metrics')
-        NODE_SLOT_COUNT.labels(browser).set(all_nodes[browser]['slot_count'])
-        NODE_SESSION_COUNT.labels(browser).set(all_nodes[browser]['session_count'])
+        NODE_SLOT_COUNT.labels(browser, f'selenium-node-{browser}').set(all_nodes[browser]['slot_count'])
+        NODE_SESSION_COUNT.labels(browser, f'selenium-node-{browser}').set(all_nodes[browser]['session_count'])
         if all_nodes[browser]['slot_count'] > 0:
             browser_usage_percent = (all_nodes[browser]['session_count'] / all_nodes[browser]['slot_count']) * 100
         else:
             browser_usage_percent = 0
-        NODE_USAGE_PERCENT.labels(browser).set(browser_usage_percent)
+        NODE_USAGE_PERCENT.labels(browser, f'selenium-node-{browser}').set(browser_usage_percent)
 
 
 if __name__ == '__main__':
